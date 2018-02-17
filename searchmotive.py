@@ -123,6 +123,23 @@ def BranchAndBoundMotiveSearch(t,n,l):#txn matrix size t=number of row=5 n=total
             (s,i)=NextVertex(s,i,t,n-l)
     return bestMotif
 
-con1=BranchAndBoundMotiveSearch(5,60,10)
+def GreedyMotifSearch(t,n,l):
+    bestMotif=[0,0,0,0,0,0]
+    s=[0,0,0,0,0,0]
+    for s[0] in range(0,n-l):
+        for s[1] in range(0,n-l):
+            if Score(s)>Score(bestMotif):
+                bestMotif[0]=s[0]
+                bestMotif[1]=s[1]
+    s[0]=bestMotif[0]
+    s[1]=bestMotif[1]
+    for i in range(2,t):
+        for s[i] in range(0,n-l):
+            if Score(s)>Score(bestMotif):
+                bestMotif[i]=s[i]
+        s[i]=bestMotif[i]
+    return bestMotif
+
+con1=GreedyMotifSearch(5,60,10)
 scoreprint=Score(con1)
 con2=conprint(con1)
