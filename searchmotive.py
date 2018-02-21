@@ -159,22 +159,25 @@ def BranchAndBoundMotifSearch2(t,n,l):#txn matrix size t=number of row=5 n=total
     return bestMotif,bestScore
 
 def GreedyMotifSearch(t,n,l):
-    bestMotif=[0,0,0,0,0,0]
-    s=[0,0,0,0,0,0]
+    bestMotif=[]
+    for i in range(0,dnaArraycount):
+        bestMotif.append(0)
+    s=[]
+    for i in range(0,dnaArraycount):
+        s.append(0)
     for s[0] in range(0,n-l):
         for s[1] in range(0,n-l):
-            if Score(s)>Score(bestMotif):
+            if Score2(s,l)>Score2(bestMotif,l):
                 bestMotif[0]=s[0]
                 bestMotif[1]=s[1]
     s[0]=bestMotif[0]
     s[1]=bestMotif[1]
     for i in range(2,t):
         for s[i] in range(0,n-l):
-            if Score(s)>Score(bestMotif):
+            if Score2(s,l)>Score2(bestMotif,l):
                 bestMotif[i]=s[i]
         s[i]=bestMotif[i]
     return bestMotif
-
 
 #scoreprint2=Score([12,13,14,15],dnaArray,6) 
 #for i in range(0,4):
@@ -184,5 +187,10 @@ con=conprint(best)
 
 scoreprint2=Score2([24,1,43,18,20],mlength)
 con2=conprint([24,1,43,18,20])
+
+best2=GreedyMotifSearch(dnaArraycount,dnacount2,mlength)
+scoreprint3=Score2(best2,mlength)
+con3=conprint([14,1,0,0,0])
+
 #con3=ContainedConsensusMotifSearch(dnaArray,6)
 #con2=conprint([12,13,14,15])
