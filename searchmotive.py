@@ -1,53 +1,46 @@
 #obtain fasta input
 fasta=open("/Users/peeranut/Documents/python/motif-test_sequences.fasta","r")
+#fasta=open("/Users/peeranut/Documents/python/test.fasta","r")
 dna=fasta.readlines()
 fasta.close()
 dnatotal=len(dna)
-dnaArray=[]
-for i in range(1,dnatotal,2):
-    dnaArray.append(dna[i])
+dnaArray=[x for x in dna if ">" not in x ]
 dnaArraycount=len(dnaArray)
+dnacount2=len(dnaArray[0])-1
+mlength=10
+#put dna matrix profiling 
+#def Score(s, DNA, k):
+  #  """ 
+   #     compute the consensus SCORE of a given k-mer 
+    #    alignment given offsets into each DNA string.
+     #       s = list of starting indices, 1-based, 0 means ignore
+      ##     k = Target Motif length
+    #"""
+ #   score = 0
+  #  for i in range(k):
+         #loop over string positions
+    #    cnt = dict(zip("ATCG",(0,0,0,0)))
+     #   for j, sval in enumerate(s):
+            # loop over DNA strands
+       #     base = DNA[j][sval+i] 
+        #    cnt[base] += 1
+        #score = score+max(cnt.values())
+    #return score
 
-#put dna matrix profiling            
-def Score(s):
-    dnaArray2=[[],[],[],[],[]]
-    for t in range(0,dnaArraycount):
-        for u in range(s[t],s[t]+10):
-            dnaArray2[t].append(dnaArray[t][u])
-
-    profile=[[],[],[],[]]
-    for h in range(0,4):
-        for k in range(0,10):
-            profile[h].append(0)
-    for c in range(0,10):
-        for r in range(0,dnaArraycount):
-            if dnaArray2[r][c]=="A":
-                profile[0][c]=profile[0][c]+1
-            elif dnaArray2[r][c]=="T":
-                profile[1][c]=profile[1][c]+1
-            elif dnaArray2[r][c]=="C":
-                profile[2][c]=profile[2][c]+1
-            elif dnaArray2[r][c]=="G":
-                profile[3][c]=profile[3][c]+1
-
-    score=0
-    for e in range(0,10):
-        score=score+max(profile[0][e],profile[1][e],profile[2][e],profile[3][e])
-    return score
 
 #consensus
 def conprint(s):
-    dnaArray2=[[],[],[],[],[]]
-    for t in range(0,5):
-        for u in range(s[t],s[t]+10):
+    dnaArray2=[[],[],[],[]]
+    for t in range(0,4):
+        for u in range(s[t],s[t]+mlength):
             dnaArray2[t].append(dnaArray[t][u])
 
     profile=[[],[],[],[]]
     for h in range(0,4):
-        for k in range(0,10):
+        for k in range(0,mlength):
             profile[h].append(0)
-    for c in range(0,10):
-        for r in range(0,dnaArraycount):
+    for c in range(0,6):
+        for r in range(0,4):
             if dnaArray2[r][c]=="A":
                 profile[0][c]=profile[0][c]+1
             elif dnaArray2[r][c]=="T":
@@ -58,7 +51,7 @@ def conprint(s):
                 profile[3][c]=profile[3][c]+1  
                 
     consensus=[]
-    for f in range(0,10):
+    for f in range(0,mlength):
         if profile[0][f]>=profile[1][f]:
             if profile[0][f]>=profile[2][f]:
                 if profile[0][f]>=profile[3][f]:
@@ -79,49 +72,91 @@ def conprint(s):
         else:
             consensus.append("G")
             
-    constring=""
-    for g in range(0,10):
-        constring=constring+consensus[g]
-    return constring
+#    constring=""
+ #   for g in range(0,6):
+  #      constring=constring+consensus[g]
+    print(consensus) 
+    return consensus
     
+def Score2(s,k):#k=motif length,w=number of rows
+    dnaArray2=[]
+    for i in range(0,dnaArraycount):
+        dnaArray2.append([])
+    for t in range(0,dnaArraycount):
+        for u in range(s[t],s[t]+k):
+            dnaArray2[t].append(dnaArray[t][u])
+
+    profile2=[[],[],[],[]]
+    for h in range(0,4):
+        for j in range(0,k):
+            profile2[h].append(0)
+    for c in range(0,k):
+        for r in range(0,dnaArraycount):
+            if dnaArray2[r][c]=="A":
+                profile2[0][c]=profile2[0][c]+1
+            elif dnaArray2[r][c]=="T":
+                profile2[1][c]=profile2[1][c]+1
+            elif dnaArray2[r][c]=="C":
+                profile2[2][c]=profile2[2][c]+1
+            elif dnaArray2[r][c]=="G":
+                profile2[3][c]=profile2[3][c]+1
+                
+    score=0
+    for e in range(0,k):
+        score=score+max(profile2[0][e],profile2[1][e],profile2[2][e],profile2[3][e])
+    return score
+
 def NextVertex(a,i,L,k): #a=array position,i=position,L=interesting line=10,k=alphabet=4
+    a=[0]+a
     if i<L:
-        a[i+1]=1
-        #a.insert(i+1,1)
-        return a,i+1
+        a[i]+1
+        a.pop(0)
+        return (a,i+1)
     else:
-        for j in range (L,1):
-            if a[j]<k:
+        for j in range(L,0,-1):
+            if a[j] < k:
                 a[j]=a[j]+1
-                return a,j
-    return a,0
+                a.pop(0)
+                return (a,j)
+    a.pop(0)
+    return (a,0)
 
 def Bypass(a,i,L,k): #a=array position,i=position,L=interesting line=10,k=alphabet=4
-    for j in range(i,1):
-        if a[j]<k:
-            a[j]=a[j]+1
-            return a,j
-    return a,0
+    a=[0]+a
+    for j in range(i,0,-1):
+        if a[j] < k:
+            a[j] = a[j] +1
+            a.pop(0)
+            return (a,j)
+    a.pop(0)
+    return (a,0)
 
-def BranchAndBoundMotiveSearch(t,n,l):#txn matrix size t=number of row=5 n=total nucleotide=60 ,l=motif length=10
-    s=[0,0,0,0,0,0]
+def BranchAndBoundMotifSearch2(t,n,l):#txn matrix size t=number of row=5 n=total nucleotide=60 ,l=motif length=10
+    s=[]
+    for i in range(0,dnaArraycount):
+        s.append(0)
+    countLoop=0
     bestMotif=[]
     bestScore=0
     optimisticScore=0
     i=1
     while i>0:
         if i<t:
-            optimisticScore=Score(s)+(t-i)*l
+            optimisticScore=Score2(s,l)+(t-i)*l
             if optimisticScore<bestScore:
-                (s,i)=Bypass(s,i,t,n-l)
+                s,i=Bypass(s,i,t,n-l)
+                print(countLoop,optimisticScore,bestScore,(s,i),"by")
             else:
-                (s,i)=NextVertex(s,i,t,n-l)
+                s,i=NextVertex(s,i,t,n-l)
+                print(countLoop,optimisticScore,bestScore,(s,i),"next1")
         else:
-            if Score(s)>bestScore:
-                bestScore=Score(s)
+            if Score2(s,l)>bestScore:
+                bestScore=Score2(s,l)
                 bestMotif=s
-            (s,i)=NextVertex(s,i,t,n-l)
-    return bestMotif
+            s,i=NextVertex(s,i,t,n-l)
+            print(countLoop,optimisticScore,bestScore,(s,i),"next2")
+        countLoop += 1
+    return bestMotif,bestScore
 
 def GreedyMotifSearch(t,n,l):
     bestMotif=[0,0,0,0,0,0]
@@ -140,6 +175,14 @@ def GreedyMotifSearch(t,n,l):
         s[i]=bestMotif[i]
     return bestMotif
 
-con1=GreedyMotifSearch(5,60,10)
-scoreprint=Score(con1)
-con2=conprint(con1)
+
+#scoreprint2=Score([12,13,14,15],dnaArray,6) 
+#for i in range(0,4):
+    #print(dnaArray2[i])
+best,scoreprint=BranchAndBoundMotifSearch2(dnaArraycount,dnacount2,mlength)
+con=conprint(best)
+
+scoreprint2=Score2([24,1,43,18,20],mlength)
+con2=conprint([24,1,43,18,20])
+#con3=ContainedConsensusMotifSearch(dnaArray,6)
+#con2=conprint([12,13,14,15])
